@@ -1,0 +1,154 @@
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    10/27/15 14:42:19
+Template.asm						     Page 1 - 1
+
+
+				;// Lab 4(Lab4.asm)
+
+				;// Program Description:
+				;// Author:
+				;// Creation Date:
+				;// Revisions:
+				;// Date:              Modified by:
+
+				.386
+				.model flat, stdcall
+				.stack 4096
+				ExitProcess PROTO, dwExitCode : DWORD
+
+ 00000000			.data
+ 00000000 01			u_Byte	BYTE	 1		; declare variables here
+ 00000001 FF			s_Byte	SBYTE	-1		; declare variables here
+ 00000002 FFFF			u_Word	WORD	0FFFFh
+ 00000004 FFFF			s_Word	SWORD	0FFFFh
+ 00000006 12345678		u_DWord	DWORD	12345678h
+ 0000000A 09ABCDEF		s_DWord	SDWORD	09ABCDEFh
+ 0000000E FF 00			myByte BYTE 0FFh, 0
+ 00000010 00000005		var1 SDWORD 5
+ 00000014 00000014		var2 SDWORD 20
+ 00000018 FFFFFFFB		var3 SDWORD -5
+ 00000000			.code
+ 00000000			main PROC
+
+
+ 00000000  A0 0000000E R	mov al,myByte ; AL =??
+ 00000005  8A 25 0000000F R	mov ah,[myByte+1] ; AH = ??
+ 0000000B  FE CC		dec ah ; AH = ??
+ 0000000D  FE C0		inc al ; AL = ??
+ 0000000F  66| 48		dec ax ; AX = ??
+
+ 00000011  66| B8 00FF		mov ax,00FFh
+ 00000015  66| 83 C0 01		add ax,1 ; AX= 0100h SF= 0 ZF= 0 CF= 0
+ 00000019  66| 83 E8 01		sub ax,1 ; AX= ?? SF=?? ZF=?? CF=??
+ 0000001D  04 01		add al,1 ; AL= ?? SF=?? ZF=?? CF=??
+ 0000001F  B7 6C		mov bh,6Ch
+ 00000021  80 C7 95		add bh,95h ; BH= ?? SF=?? ZF=?? CF=??
+ 00000024  B0 02		mov al,2
+ 00000026  2C 03		sub al,3 ; AL= ?? SF=?? ZF=?? CF=??
+
+ 00000028  B0 80		mov al,-128
+ 0000002A  F6 D8		neg al ; CF =  1 OF =  1
+ 0000002C  66| B8 8000		mov ax,8000h
+ 00000030  66| 83 C0 02		add ax,2 ; CF = ?? OF = ??
+ 00000034  66| B8 0000		mov ax,0
+ 00000038  66| 83 E8 02		sub ax,2 ; CF = ?? OF = ??
+ 0000003C  B0 FB		mov al,-5
+ 0000003E  2C 7D		sub al,+125 ; OF = ??
+
+ 00000040  66| B8 FDFF		mov ax,0FDFFh ; -513
+ 00000044  66| 99		cwd
+ 00000046  66| BB 0100		mov bx,100h
+ 0000004A  66| F7 FB		idiv bx ;After idiv: DX = ??, AX = ??
+ 0000004D  B8 00128765		mov eax,00128765h
+ 00000052  B9 00010000		mov ecx,10000h
+ 00000057  F7 E1		mul ecx ;After mul: EDX = ??, EAX = ??,CF = ??
+
+ 00000059  BB 0000000A		mov ebx,10
+ 0000005E  B9 00000002		mov ecx,2
+ 00000063  B8 00000014		mov eax,20
+ 00000068  F7 EB		imul ebx
+ 0000006A  F7 F9		idiv ecx
+
+
+
+ 0000006C  BB 0000000A		mov ebx,10
+ 00000071  8B 0D 00000018 R	mov ecx,var3
+ 00000077  2B CB		sub ecx, ebx
+ 00000079  F7 1D 00000014 R	neg var2
+ 0000007F  A1 00000010 R	mov eax,var1
+ 00000084  F7 2D 00000014 R	imul var2
+ 0000008A  F7 F9		idiv ecx
+ 0000008C  A3 00000018 R	mov var3,eax
+
+
+				COMMENT @
+				MOV	AL,	u_Byte
+				ADD	AL,	s_Byte
+
+				MOV EAX, 0
+				MOV EBX, 0
+
+				MOV	AX, u_Word
+				MOV	BX, s_Word
+				ADD AX, BX
+
+				MOV EAX, u_Dword
+				MOV EBX, s_DWord
+				@
+
+
+				INVOKE ExitProcess, 0
+
+ 00000098			main ENDP
+
+
+				END main
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    10/27/15 14:42:19
+Template.asm						     Symbols 2 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000001C DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000098 DWord	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000098 Public STDCALL
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+myByte . . . . . . . . . . . . .	Byte	 0000000E _DATA	
+s_Byte . . . . . . . . . . . . .	Byte	 00000001 _DATA	
+s_DWord  . . . . . . . . . . . .	DWord	 0000000A _DATA	
+s_Word . . . . . . . . . . . . .	Word	 00000004 _DATA	
+u_Byte . . . . . . . . . . . . .	Byte	 00000000 _DATA	
+u_DWord  . . . . . . . . . . . .	DWord	 00000006 _DATA	
+u_Word . . . . . . . . . . . . .	Word	 00000002 _DATA	
+var1 . . . . . . . . . . . . . .	DWord	 00000010 _DATA	
+var2 . . . . . . . . . . . . . .	DWord	 00000014 _DATA	
+var3 . . . . . . . . . . . . . .	DWord	 00000018 _DATA	
+
+	   0 Warnings
+	   0 Errors

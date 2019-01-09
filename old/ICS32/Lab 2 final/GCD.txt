@@ -1,0 +1,20 @@
+Q1:
+The breakpoint at line 9 moved to line 12 and the one at line 19 stayed where it was
+
+Q2:
+The values for num1 and num2 are both -858993460
+
+Q3:
+Set1: 4
+Set2: 10
+Set3: 0
+
+Q4:
+Set1: It was changed to 21 and then 14 and then 7
+Set2: There was no change to the number
+Set3: There was no change to the number
+
+Q5:
+Set1: 7
+Set2: 11
+Set3: 32

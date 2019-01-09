@@ -1,0 +1,14 @@
+﻿Build started 10/19/2015 4:39:45 PM.
+     1>Project "C:\Users\Shannon\Documents\Visual Studio 2013\Projects\Project32\Project32\Project32.vcxproj" on node 2 (Build target(s)).
+     1>_MASM:
+         Assembling Template.asm...
+         cmd.exe /C "C:\Users\Shannon\AppData\Local\Temp\tmp79a4bf752bc74357b91dc083a6f7f986.cmd"
+         ml.exe /c /nologo /Zi /Fo"Debug\Template.obj" /Fl"Project32.lst" /W3 /errorReport:prompt  /TaTemplate.asm
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Shannon\Documents\Visual Studio 2013\Projects\Project32\Debug\Project32.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Shannon\Documents\Visual Studio 2013\Projects\Project32\Debug\Project32.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Shannon\Documents\Visual Studio 2013\Projects\Project32\Debug\Project32.lib" /MACHINE:X86 /SAFESEH:NO Debug\Template.obj
+         Project32.vcxproj -> C:\Users\Shannon\Documents\Visual Studio 2013\Projects\Project32\Debug\Project32.exe
+     1>Done Building Project "C:\Users\Shannon\Documents\Visual Studio 2013\Projects\Project32\Project32\Project32.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.22

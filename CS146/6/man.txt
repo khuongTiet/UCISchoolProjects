@@ -1,0 +1,41 @@
+NSH(1)                                          NSH MANUAL                                   NSH(1)
+
+NAME
+        nsh - Custom shell that has all the basic functionalities of the Bourne shell
+
+SYNOPSIS
+        nsh [FILE]
+
+DESCRIPTION
+        Shell that handles commands as you would expect them to run in the Bourne shell.
+        Contains functionality for input/output redirection, chaining commands with pipes,
+        and changing directories
+
+        To run a shell command:
+          ? COMMAND [OPTIONS]...
+
+        To change directories:
+          ? cd [DESTINATION]
+
+        To chain commands with pipes:
+          ? COMMAND [OPTIONS] | COMMAND [OPTIONS] ...
+
+        To redirect input
+          ? COMMAND [OPTIONS]... < FILE
+
+        To redirect output
+          ? COMMAND [OPTIONS]... > FILE
+
+	To test the script
+	  ? make test_[cd / pipes / redirection]
+	
+	The diff_* scripts compare against the actual sh outputs
+	The test_* scripts test the output of the shell
+
+EXIT STATUS
+        0       Good
+        1       Minimal error
+        2       ERROR
+
+AUTHOR
+        Written by Khuong Tiet 88812261

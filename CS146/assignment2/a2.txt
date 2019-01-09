@@ -1,0 +1,41 @@
+Name: Khuong Tiet
+Student ID: 88812261
+
+1.
+	if the command: cat x y > y
+	did not give any error messages, the command would take the contents of x
+	and the contents of y and replace y with the contents of x and y, effectively appending x to y
+
+	if the command: cat x >> x
+	did not give any error messages, the command would simply double the contents of x by appending x to itself 
+
+2.
+	cx works by iterating through each command line argument and applying the 'chmod +x' command to the given file
+	cx check that each file passed to it is a valid file through use of the -f option
+
+3.
+	nf works by simply piping the output of 'ls' into 'wc -l', counting each line as a file and therefore summing up to all the files in the current directory
+
+4.
+	lss works by using the options that 'ls' provides, using '-l' to list out the data of each file and '-S' to sort the files by size
+
+5.
+	whoson works by first cleaning the output of 'who' by cutting it's first column and sorting that column into unique entries. The script then iterates through each line in the output
+	and passes it to the 'groups' command (and redirects stderr to /dev/null to deal with the 'groups: cannot find id' error) which is then piped into 'grep' searching for the keyword
+	'ugrad' with the '-q' option in order to ignore the output of 'grep'. This combination of commands allows us to only output the users which are part of the 'ugrad' group and then 
+	print them to the stdout using 'printf'
+
+6.
+	howmany utilizes whoson in order to quickly get a list of all the currently logged on students that are a part of 'ugrad', the script then pipes this output to 'wc' with the '-w'
+	option in order to count each separate word, essentially counting each student
+
+7.
+	valid works by using 'grep' and the '-E' option in order to check against an extended regular expression. The expression ensures that the first letter of the parameter must either be
+	an underscore or an alphabetical character, leaving the rest of the parameter to be alphanumeric but not including symbolic characters that are not underscores. This is accomplished 
+	through the '$1' parameter operator and a series of if and else statements
+
+8.
+	pargs works by using the '$@' shell variable in order to get an array of all the shell variables passed through to the script. The script then iterates over each of these inputs
+	and prints each out along with a numeric counter that is iterated after each print statement is completed.
+
+

@@ -1,0 +1,138 @@
+DURM(1)
+
+NAME
+	durm - displays the disk usage of the TRASH directory
+
+SYNOPSIS
+	durm
+
+DESCRIPTION
+	This manual page documents the shell script durm. durm displays the current disk usage of the TRASH directory.
+	It does not take any options or arguments to run.
+
+LSRM(1)
+
+NAME
+	lsrm - displays the contents of each of the files in the TRASH directory in long form
+
+SYNOPSIS
+	lsrm
+
+DESCRIPTION
+	This manual page documents the shell script lsrm. lsrm displays the current contents of the TRASH directory.
+	It does not take in any arguments.
+	It calls ls -l on each file in the directory
+
+
+TRASH(1)
+
+NAME
+	trash - removes all the contents of the TRASH directory
+
+SYNOPSIS
+	trash
+
+DESCRIPTION
+	This manual page documents the shell script trash. trash removes all of the files within the TRASH directory.
+	It does not take any arguments to execute.
+
+UNRM(1)
+
+NAME
+	unrm - Places specified file back into the current working directory
+
+SYNOPSIS
+	unrm FILE...
+
+DESCRIPTION
+	This manual page documents the shell script unrm. unrm moves all the files specified from the TRASH directory back
+	into the current working directory. unrm takes in as arguments the files that the user wishes to recover
+
+
+
+SRM(1)                                                                                      User Commands                                                                                      RM(1)
+
+NAME
+       srm - safely remove files or directories by moving them into a TRASH directory
+
+SYNOPSIS
+       srm [OPTION]... FILE...
+
+DESCRIPTION
+       This manual page documents the srm script. It will move any file specified in the arguments into the environment variable TRASH.
+       The user should have this variable defined before using any of the scripts within this suite and the scripts will inform the user of this as well.
+
+       Should the user pass any options into srm,  the script will simply call rm instead with the options provided. Options passed to srm will not have
+       any special interaction with the TRASH directory specified in the environment variable.
+
+       If the user calls srm upon a file with the same name as a file within the TRASH directory, the script will overwrite the original file within the 
+       TRASH directory and replace it with the new file that was passed as an argument to srm.
+
+OPTIONS FOR SRM
+       Remove (unlink) the FILE(s).
+
+       -f, --force
+              ignore nonexistent files and arguments, never prompt
+
+       -i     prompt before every removal
+
+       -I     prompt once before removing more than three files, or when removing recursively; less intrusive than -i, while still giving protection against most mistakes
+
+       --interactive[=WHEN]
+              prompt according to WHEN: never, once (-I), or always (-i); without WHEN, prompt always
+
+       --one-file-system
+              when removing a hierarchy recursively, skip any directory that is on a file system different from that of the corresponding command line argument
+
+       --no-preserve-root
+              do not treat '/' specially
+
+       --preserve-root
+              do not remove '/' (default)
+
+       -r, -R, --recursive
+              remove directories and their contents recursively
+
+       -d, --dir
+              remove empty directories
+
+       -v, --verbose
+              explain what is being done
+
+       --help display this help and exit
+
+       --version
+              output version information and exit
+
+       By default, rm does not remove directories.  Use the --recursive (-r or -R) option to remove each listed directory, too, along with all of its contents.
+
+       To remove a file whose name starts with a '-', for example '-foo', use one of these commands:
+
+              rm -- -foo
+
+              rm ./-foo
+
+       Note  that  if you use rm to remove a file, it might be possible to recover some of its contents, given sufficient expertise and/or time.  For greater assurance that the contents are truly
+       unrecoverable, consider using shred.
+
+       GNU coreutils online help: <http://www.gnu.org/software/coreutils/> Report rm translation bugs to <http://translationproject.org/team/>
+
+AUTHOR
+       Written by Paul Rubin, David MacKenzie, Richard M. Stallman, and Jim Meyering.
+
+COPYRIGHT
+       Copyright © 2013 Free Software Foundation, Inc.  License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.
+
+SEE ALSO
+       unlink(1), unlink(2), chattr(1), shred(1)
+
+       The full documentation for rm is maintained as a Texinfo manual.  If the info and rm programs are properly installed at your site, the command
+
+              info coreutils 'rm invocation'
+
+       should give you access to the complete manual.
+
+
+
+GNU coreutils 8.22                                                                         November 2016                                                                                      RM(1)

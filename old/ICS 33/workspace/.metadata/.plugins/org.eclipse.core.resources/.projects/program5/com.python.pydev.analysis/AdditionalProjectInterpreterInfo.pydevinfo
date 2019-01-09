@@ -1,0 +1,94 @@
+-- VERSION_4
+-- START DISKCACHE
+H:\workspace\.metadata\.plugins\org.eclipse.core.resources\.projects\program5\com.python.pydev.analysis\v2_indexcache
+ball|1433387426000|H:\program5\ball.py
+controller|1369148392000|H:\program5\controller.py
+view|1369148338000|H:\program5\view.py
+prey|1369149828000|H:\program5\prey.py
+mobilesimulton|1433450171835|H:\program5\mobilesimulton.py
+pulsator|1369152540000|H:\program5\pulsator.py
+floater|1433447837258|H:\program5\floater.py
+model|1433448495923|H:\program5\model.py
+hunter|1432648294000|H:\program5\hunter.py
+simulton|1369150052000|H:\program5\simulton.py
+script|1368898360000|H:\program5\script.py
+-- END DISKCACHE
+-- START DICTIONARY
+23
+12=Floater
+15=Ball
+7=controller
+8=prey
+6=mobilesimulton
+22=Mobile_Simulton.set_speed
+9=pulsator
+23=Simulton.set_location
+11=Prey
+2=ball
+19=Mobile_Simulton.bounce
+4=view
+16=Mobile_Simulton.__init__
+20=Simulton.set_dimension
+14=Simulton
+17=Mobile_Simulton.set_angle
+18=Mobile_Simulton.randomize_angle
+3=floater
+1=model
+5=hunter
+10=simulton
+21=Floater.__init__
+13=Mobile_Simulton
+-- END DICTIONARY
+-- START TREE 1
+27
+add|1|add!10@
+bal|1|Ball!17@
+bla|0|
+cyc|1|cycle_count!11@
+dis|1|display_all!10@
+fin|1|find!10@
+flo|1|Floater!25@
+fra|1|frame!35@
+hun|1|Hunter!41@
+mob|1|Mobile_Simulton!49@
+mou|1|mouse_click!10@
+obj|1|object_button!58@
+pre|1|Prey!65@
+pro|1|progress!58@
+pul|1|Pulsator!73@
+rem|1|remove!10@
+rep|1|repeater!58@
+res|2|reset_button!58@reset!10@
+roo|1|root!35@
+sel|2|select_object!10@selected!11@
+sim|4|simulation_canvas!58@simulating!11@simultons!11@Simulton!81@
+sta|2|start!10@start_button!58@
+ste|2|step!10@step_button!58@
+sto|2|stop_button!58@stop!10@
+the|2|the_progress!59@the_canvas!59@
+upd|1|update_all!10@
+wor|1|world!10@
+-- END TREE
+-- START TREE 2
+20
+__i|5|__init__!11&66@__init__!12&26@__init__!13&50@__init__!14&82@__init__!15&18@
+_an|4|_angle!16&51@_angle!17&51@_angle!18&51@_angle!19&51@
+_he|1|_height!20&83@
+_im|1|_image!21&27@
+_sp|2|_speed!16&51@_speed!22&51@
+_wi|1|_width!20&83@
+_x|1|_x!23&83@
+_y|1|_y!23&83@
+bou|1|bounce!13&50@
+cha|2|change_location!14&82@change_dimension!14&82@
+con|1|contains!14&82@
+dis|3|distance!14&82@display!15&18@display!12&26@
+get|4|get_dimension!14&82@get_angle!13&50@get_speed!13&50@get_location!14&82@
+mov|1|move!13&50@
+rad|1|radius!15&19@
+ran|1|randomize_angle!13&50@
+set|5|set_angle!13&50@set_location!14&82@set_dimension!14&82@set_speed!13&50@set_velocity!13&50@
+up|0|
+upd|2|update!15&18@update!12&26@
+wal|1|wall_bounce!13&50@
+-- END TREE

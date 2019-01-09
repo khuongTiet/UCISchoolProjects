@@ -1,0 +1,32 @@
+total 0
+-rw------- 1 ktiet1 ugrad 0 Jun  8 23:45 a
+-rw------- 1 ktiet1 ugrad 0 Jun  8 23:45 b
+-rw------- 1 ktiet1 ugrad 0 Jun  8 23:45 c
+-rw------- 1 ktiet1 ugrad 0 Jun  8 23:45 def
+total 88
+-rwx------ 1 ktiet1 ugrad   126 Jun  8 23:44 diff_cd.sh
+-rwx------ 1 ktiet1 ugrad   144 Jun  8 23:32 diff_pipes.sh
+-rwx------ 1 ktiet1 ugrad   167 Jun  8 23:31 diff_redirection.sh
+-rw------- 1 ktiet1 ugrad    52 Jun  8 23:06 gg
+-rw------- 1 ktiet1 ugrad  1519 Jun  8 23:07 main.c
+-rw------- 1 ktiet1 ugrad    94 Jun  5 11:02 makefile
+-rw------- 1 ktiet1 ugrad   971 Jun  8 22:44 man.txt
+-rw------- 1 ktiet1 ugrad     0 Jun  8 23:22 nn
+-rwx------ 1 ktiet1 ugrad 14184 Jun  8 23:41 nsh
+-rw------- 1 ktiet1 ugrad   182 Jun  8 23:45 nsh_cd
+-rw------- 1 ktiet1 ugrad  2132 Jun  8 23:41 nsh_help.c
+-rw------- 1 ktiet1 ugrad   227 Jun  8 16:58 nsh_help.h
+-rw------- 1 ktiet1 ugrad  1245 Jun  8 23:39 nsh_pipes
+-rw------- 1 ktiet1 ugrad    28 Jun  8 23:39 nsh_redirect
+-rw------- 1 ktiet1 ugrad  1049 Jun  8 10:08 old-main.c
+-r-------- 1 ktiet1 ugrad  4077 May 31 10:37 parse.c
+-rw------- 1 ktiet1 ugrad  2696 Jun  1 16:37 parse.h
+-rw------- 1 ktiet1 ugrad  1615 Jun  8 23:44 sh_cd
+-rw------- 1 ktiet1 ugrad    28 Jun  8 23:39 sh_redirect
+-rw------- 1 ktiet1 ugrad    11 Jun  8 23:19 test
+-rwx------ 1 ktiet1 ugrad    74 Jun  8 23:45 test_cd.sh
+drwx------ 2 ktiet1 ugrad  4096 Jun  8 23:45 testing
+-rw------- 1 ktiet1 ugrad     5 Jun  8 23:39 testing.txt
+-rwx------ 1 ktiet1 ugrad    62 Jun  8 22:46 test_pipes.sh
+-rwx------ 1 ktiet1 ugrad   188 Jun  8 23:26 test_redirection.sh
+-rwx------ 1 ktiet1 ugrad    67 Jun  8 21:41 test.sh

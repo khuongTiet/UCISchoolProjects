@@ -1,0 +1,86 @@
+Microsoft (R) Macro Assembler Version 12.00.40629.0	    10/19/15 16:39:46
+Template.asm						     Page 1 - 1
+
+
+				;// Program Template(Template.asm)
+
+				;// Program Description:
+				;// Author:
+				;// Creation Date:
+				;// Revisions:
+				;// Date:              Modified by:
+
+				.386
+				.model flat, stdcall
+				.stack 4096
+				ExitProcess PROTO, dwExitCode : DWORD
+
+ 00000000			.data
+				; declare variables here
+ 00000000 00000000		Rval sdword 0h
+ 00000004 00000010		Xval sdword 10h
+ 00000008 00000008		Yval sdword 08h
+ 0000000C 00000002		Zval sdword 02h
+
+ 00000000			.code
+ 00000000			main PROC
+
+ 00000000			.code
+ 00000000  8B 1D 00000008 R	mov ebx, Yval
+ 00000006  F7 DB		neg ebx
+ 00000008  03 1D 0000000C R	add ebx, Zval
+ 0000000E  A1 00000004 R	mov eax, Xval
+ 00000013  2B C3		sub eax, ebx
+ 00000015  A3 00000000 R	mov Rval, eax
+
+				INVOKE ExitProcess, 0
+
+ 00000021			main ENDP
+
+				; (insert additional procedures here)
+
+				END main
+Microsoft (R) Macro Assembler Version 12.00.40629.0	    10/19/15 16:39:46
+Template.asm						     Symbols 2 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000010 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000021 DWord	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000021 Public STDCALL
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+Rval . . . . . . . . . . . . . .	DWord	 00000000 _DATA	
+Xval . . . . . . . . . . . . . .	DWord	 00000004 _DATA	
+Yval . . . . . . . . . . . . . .	DWord	 00000008 _DATA	
+Zval . . . . . . . . . . . . . .	DWord	 0000000C _DATA	
+
+	   0 Warnings
+	   0 Errors

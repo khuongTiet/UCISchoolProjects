@@ -1,0 +1,31 @@
+Q1)	00D81010
+
+Q2)	a0 00 90 d8 00 
+
+Q3) 	EAX = 0x770d3368
+	AX  = 0x3368
+	AL  = 'h'
+	AH  = '3'
+
+Q4) 	EAX = 0x770d3301
+	AX  = 0x3301
+	AL  = '\x1'
+	AH  = '3'
+
+Q5)	AH  = '3'
+	AL  = '\0'
+
+Q6)	The difference in bit size prevents this from happening
+	EAX is 32-bits while AL, containing u_Byte and s_Byte, is 8-bits
+
+Q7)	They both contain,  0x0000ffff
+
+Q8)	u_Word = 65535, s_Word = -1
+
+Q9)	Because s_Word uses a signed value while u_Word does not
+
+Q10)	78 56 34 12 
+
+Q11)	0x12345678
+
+Q12)	One is represented in BigEndian and the other in Little Endian

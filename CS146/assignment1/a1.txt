@@ -1,0 +1,51 @@
+Name: Khuong Tiet
+Student ID: 88812261
+
+1.
+	My home directory is: /home/ktiet1
+	Commands used: pwd
+
+2.
+	My UID is: 13645
+	Commands used: id
+
+3.
+	The group(s) I belong to are: ugrad
+	Commands used: groups
+
+4.
+	My "kill" (Control + u) character is used for clearing the current line
+
+5.
+	You are not allowed to create files in a directory if you removed permissions
+	for yourself on it. You cannot do any executions either such as "cd", "ls",
+	or "ls -l"
+
+6.
+	If you make a hard link to a file and then remove the original file, the 
+	contents of that files are not actually removed because there is still a
+	reference to that file via the hard link. If you make a symbolic link then
+	the contents of that file will actually be removed.
+
+7.
+	You are allowed to "mv" and "cp" a directory. To "mv" a directory you simply just
+	use the command and specify a new location for the direction. In order to "cp" a
+	directory, you will need to pass the "-r" option in order for it to happen 
+	recursively and copy all the files and subdirectories within that directory.
+
+8.
+	There are 88 mounted file systems on odin.ics.uci.edu at the time of writing this.
+	Command used: mount | wc -l
+
+9.
+	The name of my login terminal was: 36 
+	Command used: ls -l /dev/pts | grep $(id -un) OR ls -l /dev/pts | grep ktiet1
+
+10.
+	The correct address translation should be:
+	1100101 11111111 11010000 00000000
+	1010001 01011101 00000010 00000000
+	1100101 00000000 11111111 11011100
+
+	MOVE -> 1100101
+	MUL  -> 1010001 01011101	

@@ -1,0 +1,1081 @@
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    12/01/15 14:50:17
+Lab9.asm						     Page 1 - 1
+
+
+				;// Lab 9(Lab9.asm)
+
+				;// Program Description:
+				;// Author:
+				;// Creation Date:
+				;// Revisions:
+				;// Date:              Modified by:
+
+				;// Define a structure for a linked list node that contains an integer value, 
+				;// and a pointer to the next node in the list
+
+				;// Create a global variable that represents the head of the linked list
+				;// Create five additional nodes in the data area to be added into the list later
+				;//  NOTE: our final lab will extend this program to dynamically allocate nodes
+
+ 00000008			Node STRUCT
+ 00000000  00000000			nodeValue DWORD ?
+ 00000004  00000000			ptrNext DWORD ?
+				Node ENDS
+
+
+				;// Write a function: DISPLAY_MENU that:
+				;// * Displays a menu of user choices(as shown below)
+				;//        1) Insert a node
+				;//        2) Delete a node
+				;//        3) Print the list
+				;//        4) Exit program
+				;// * Validates the user's input (1-4)
+				;// * If invalid, prints an error message and requests new input
+				;// * Returns the user's choice
+
+				;// Write a function: PRINT_LIST that:
+				;// * Passed the head pointer to a list, will print the integer value 
+				;//   of each node in the list on a separate line
+				;// * If the list is empty, prints a "List is Empty" message 
+
+				;// Write a function: INSERT_NODE that:
+				;// * Passed the head pointer to a list, the node & the value to be inserted
+				;// * Will insert the new node at the head of the list
+
+				;// Write a function: DELETE_NODE that:
+				;// * Passed the head pointer to a list, & the value of the node to be removed
+				;// * Will search the list for the node to delete
+				;//       if not found : prints "Not found" message
+				;//       if found: remove from list and print "Node removed" message
+
+
+
+				.386 
+				.model flat, stdcall
+				.stack 4096
+
+				ExitProcess PROTO, dwExitCode : DWORD
+				include io_asm.h
+			      C .386
+			      C 
+			      C dtoa        MACRO  dest, source, xtra;; convert double to ASCII string
+			      C 
+			      C 		IFB    <source>
+			      C 		.ERR <missing operand(s) in DTOA>
+			      C 		EXITM
+			      C 		ENDIF
+			      C 
+			      C 		IFNB   <xtra>
+			      C 		.ERR <extra operand(s) in DTOA>
+			      C 		EXITM
+			      C 		ENDIF
+			      C 
+			      C 		push   ebx; save EBX
+			      C 		mov    ebx, source
+			      C 		push   ebx; source parameter
+			      C 		lea    ebx, dest;; destination address
+			      C 		push   ebx; destination parameter
+			      C 		call   dtoaproc;; call dtoaproc(source, dest)
+			      C 		pop    ebx; restore EBX
+			      C ENDM
+			      C 
+			      C atod        MACRO  source, xtra;; convert ASCII string to integer in EAX
+			      C ;; offset of terminating character in ESI
+			      C 
+			      C 		IFB    <source>
+			      C 		.ERR <missing operand in ATOD>
+			      C 		EXITM
+			      C 		ENDIF
+			      C 
+			      C 		IFNB   <xtra>
+			      C 		.ERR <extra operand(s) in ATOD>
+			      C 		EXITM
+			      C 		ENDIF
+			      C 
+			      C 		lea    eax, source;; source address to EAX
+			      C 		push   eax; source parameter on stack
+			      C 		call   atodproc;; call atodproc(source)
+			      C 		; parameter removed by ret
+			      C ENDM
+			      C 
+			      C input       MACRO  dest, length, xtra;; read string from keyboard
+			      C 
+			      C 		IFB    <length>
+			      C 		.ERR <missing operand(s) in INPUT>
+			      C 		EXITM
+			      C 		ENDIF
+			      C 
+			      C 		IFNB   <xtra>
+			      C 		.ERR <extra operand(s) in INPUT>
+			      C 		EXITM
+			      C 		ENDIF
+			      C 
+			      C 		push   ebx; save EBX
+			      C 		lea    ebx, dest;; destination address
+			      C 		push   ebx; dest parameter on stack
+			      C 		mov    ebx, length;; length of buffer
+			      C 		push   ebx; length parameter on stack
+			      C 		call   inproc;; call inproc(dest, length)
+			      C 		pop    ebx; restore EBX
+			      C ENDM
+			      C 
+			      C output      MACRO  string, xtra;; display string
+			      C 
+			      C 		IFB    <string>
+			      C 		.ERR <missing operand in OUTPUT>
+			      C 		EXITM
+			      C 		ENDIF
+			      C 
+			      C 		IFNB   <xtra>
+			      C 		.ERR <extra operand(s) in OUTPUT>
+			      C 		EXITM
+			      C 		ENDIF
+			      C 
+			      C 		push   eax; save EAX
+			      C 		lea    eax, string;; string address
+			      C 		push   eax; string parameter on stack
+			      C 		call   outproc;; call outproc(string)
+			      C 		pop    eax; restore EAX
+			      C ENDM
+			      C 
+			      C intInput	MACRO	msg, dest;//User Integer Input
+			      C 		output msg;//Prints a message
+			      C 		push eax
+			      C 		call intInputProc
+			      C 		mov    dest, eax;//Stores into variable
+			      C 		pop eax
+			      C ENDM
+			      C 
+			      C intOutput	MACRO	source;//Program Integer Output
+			      C 		push eax
+			      C 		mov eax, source
+			      C 		call intOutputProc
+			      C 		pop eax
+			      C ENDM
+			      C 
+			      C stringInput	MACRO	msg, dest, count;//User String Input
+			      C 		output msg;//Prints a message
+			      C 
+			      C 		push   ebx; save EBX
+			      C 
+			      C 		lea    ebx, dest;; destination address
+			      C 		push   ebx; dest parameter on stack
+			      C 		mov    ebx, count;; length of buffer
+			      C 		push   ebx; length parameter on stack
+			      C 		call   inproc;; call inproc(dest, length)
+			      C 
+			      C 		pop    ebx; restore EBX
+			      C ENDM
+			      C 
+
+
+ 00000000			.DATA
+
+				;//DATA DEFINITIONS HERE
+
+ 00000000 00000000		integerInput DWORD ? 
+ 00000004 45 6E 74 65 72	inputIntMessage BYTE "Enter an integer: ", 0
+	   20 61 6E 20 69
+	   6E 74 65 67 65
+	   72 3A 20 00
+ 00000017 0D 0A 45 52 52	ErrorMessage BYTE 0dh, 0ah, "ERROR: Invalid input. Re-enter an integer", 0dh, 0ah, 0
+	   4F 52 3A 20 49
+	   6E 76 61 6C 69
+	   64 20 69 6E 70
+	   75 74 2E 20 52
+	   65 2D 65 6E 74
+	   65 72 20 61 6E
+	   20 69 6E 74 65
+	   67 65 72 0D 0A
+	   00
+ 00000045 0D 0A 4C 69 73	EmptyList BYTE 0dh, 0ah, "List is Empty", 0dh, 0ah, 0
+	   74 20 69 73 20
+	   45 6D 70 74 79
+	   0D 0A 00
+
+
+ 00000057 0D 0A 31 29 20	MenuOutput1 BYTE 0dh, 0ah, "1) Insert a node", 0dh, 0ah, 0
+	   49 6E 73 65 72
+	   74 20 61 20 6E
+	   6F 64 65 0D 0A
+	   00
+ 0000006C 32 29 20 44 65	MenuOutput2 BYTE "2) Delete a node", 0dh, 0ah, 0
+	   6C 65 74 65 20
+	   61 20 6E 6F 64
+	   65 0D 0A 00
+ 0000007F 33 29 20 50 72	MenuOutput3 BYTE "3) Print the list", 0dh, 0ah, 0
+	   69 6E 74 20 74
+	   68 65 20 6C 69
+	   73 74 0D 0A 00
+ 00000093 34 29 20 45 78	MenuOutput4 BYTE "4) Exit program", 0dh, 0ah, 0dh, 0ah, 0
+	   69 74 20 70 72
+	   6F 67 72 61 6D
+	   0D 0A 0D 0A 00
+
+
+ 000000A7 00000000		displayOutput DWORD ?
+
+ 000000AB  00000005 [		LinkedList Node 5 DUP(<0,0>)
+	    00000000
+	    00000000
+	   ]
+ 000000D3 00000000		head Node <0,Node PTR LinkedList[0]>
+	   000000AB R
+
+ 000000DB 00000000		checkNode Node <0,0>
+	   00000000
+
+
+ 00000000			.CODE
+
+				;//FUNCTION PROTOTYPES
+
+				PRINT_LIST PROTO, headNode: Node
+				INSERT_NODE PROTO,  headNode: Node, insert:PTR Node, int_value: DWORD
+
+					
+ 00000000			main PROC
+
+				;// MAIN PROCEDURE IMPLEMENTATION
+
+				;// Implement functionality to allow user to 
+				;// loop through adding, deleting & printing nodes
+				;// in a list. 
+				;// Implement any additional I/O operations to 
+				;// print prompts & receive values from users as necessary
+
+ 00000000			display:
+ 00000000  E8 0000007F			call DISPLAY_MENU
+					;intOutput displayOutput
+ 00000005  A1 000000A7 R		mov eax, displayOutput
+ 0000000A  83 F8 01			cmp eax, 1
+ 0000000D  74 0F			je insertNode
+ 0000000F  83 F8 02			cmp eax, 2
+ 00000012  74 52			je deleteNode
+ 00000014  83 F8 03			cmp eax, 3
+ 00000017  74 4F			je printNode
+ 00000019  83 F8 04			cmp eax, 4
+ 0000001C  74 5D			je exitProgram
+
+
+ 0000001E			insertNode:
+					intInput inputIntMessage, integerInput
+ 0000001E  50		     2			push   eax
+ 0000001F  8D 05 00000004 R  2			lea    eax, inputIntMessage
+ 00000025  50		     2			push   eax
+ 00000026  E8 000002A9	     2			call   outproc
+ 0000002B  58		     2			pop    eax
+ 0000002C  50		     1			push eax
+ 0000002D  E8 0000046D	     1			call intInputProc
+ 00000032  A3 00000000 R     1			mov    integerInput, eax;//Stores into variable
+ 00000037  58		     1			pop eax
+ 00000038  A1 00000000 R		mov eax, integerInput
+ 0000003D  BF 00000000			mov edi, 0
+ 00000042  89 87 000000AB R		mov (Node PTR LinkedList[edi]).nodeValue, eax
+					INVOKE INSERT_NODE, head, ADDR LinkedList[edi].nodeValue,eax
+ 00000061  83 C7 08			add edi, TYPE Node
+ 00000064  EB 9A			jmp display
+
+ 00000066			deleteNode:
+ 00000066  EB 98			jmp display
+
+ 00000068			printNode:
+					INVOKE PRINT_LIST, head
+ 00000079  EB 85			jmp display
+
+ 0000007B			exitProgram:
+ 0000007B  EB 00			jmp finish
+
+ 0000007D			finish:
+
+				INVOKE ExitProcess, 0
+
+ 00000084			main ENDP
+
+				;//FUNCTION IMPLEMENTATIONS
+
+ 00000084			DISPLAY_MENU PROC
+ 00000084  50				push eax
+
+					output MenuOutput1
+ 00000085  50		     1			push   eax
+ 00000086  8D 05 00000057 R  1			lea    eax, MenuOutput1
+ 0000008C  50		     1			push   eax
+ 0000008D  E8 00000242	     1			call   outproc
+ 00000092  58		     1			pop    eax
+					output MenuOutput2
+ 00000093  50		     1			push   eax
+ 00000094  8D 05 0000006C R  1			lea    eax, MenuOutput2
+ 0000009A  50		     1			push   eax
+ 0000009B  E8 00000234	     1			call   outproc
+ 000000A0  58		     1			pop    eax
+					output MenuOutput3
+ 000000A1  50		     1			push   eax
+ 000000A2  8D 05 0000007F R  1			lea    eax, MenuOutput3
+ 000000A8  50		     1			push   eax
+ 000000A9  E8 00000226	     1			call   outproc
+ 000000AE  58		     1			pop    eax
+					output MenuOutput4
+ 000000AF  50		     1			push   eax
+ 000000B0  8D 05 00000093 R  1			lea    eax, MenuOutput4
+ 000000B6  50		     1			push   eax
+ 000000B7  E8 00000218	     1			call   outproc
+ 000000BC  58		     1			pop    eax
+
+ 000000BD				prompt:
+						intInput inputIntMessage, integerInput
+ 000000BD  50		     2			push   eax
+ 000000BE  8D 05 00000004 R  2			lea    eax, inputIntMessage
+ 000000C4  50		     2			push   eax
+ 000000C5  E8 0000020A	     2			call   outproc
+ 000000CA  58		     2			pop    eax
+ 000000CB  50		     1			push eax
+ 000000CC  E8 000003CE	     1			call intInputProc
+ 000000D1  A3 00000000 R     1			mov    integerInput, eax;//Stores into variable
+ 000000D6  58		     1			pop eax
+ 000000D7  A1 00000000 R			mov eax, integerInput
+ 000000DC  83 F8 04				cmp eax, 4
+ 000000DF  7E 02				jle nextCheck
+ 000000E1  7F 07				jg reprompt
+
+ 000000E3				nextCheck:
+ 000000E3  83 F8 01				cmp eax, 1
+ 000000E6  7D 12				jge return
+ 000000E8  7C 00				jl reprompt
+
+ 000000EA				reprompt:
+						output ErrorMessage
+ 000000EA  50		     1			push   eax
+ 000000EB  8D 05 00000017 R  1			lea    eax, ErrorMessage
+ 000000F1  50		     1			push   eax
+ 000000F2  E8 000001DD	     1			call   outproc
+ 000000F7  58		     1			pop    eax
+ 000000F8  EB C3				jmp prompt
+
+ 000000FA				return:
+ 000000FA  A3 000000A7 R			mov displayOutput, eax
+ 000000FF  58					pop eax
+ 00000100  C3					ret 
+
+ 00000101			DISPLAY_MENU ENDP
+
+ 00000101			PRINT_LIST PROC,
+				    headNode: Node
+
+ 00000104  50			    push eax
+ 00000105  56			    push esi
+
+ 00000106				working:
+ 00000106  8B 75 0C				mov esi, headNode.ptrNext
+ 00000109  8B 06				mov eax, [esi]
+ 0000010B  83 F8 00				cmp eax, 0
+ 0000010E  74 02				je printFail
+ 00000110  EB 14				jmp print
+
+ 00000112				printFail:
+						output EmptyList
+ 00000112  50		     1			push   eax
+ 00000113  8D 05 00000045 R  1			lea    eax, EmptyList
+ 00000119  50		     1			push   eax
+ 0000011A  E8 000001B5	     1			call   outproc
+ 0000011F  58		     1			pop    eax
+ 00000120  5E					pop esi
+ 00000121  58					pop eax
+						ret
+
+ 00000126				print:
+						intOutput eax
+ 00000126  50		     1			push eax
+ 00000127  8B C0	     1			mov eax, eax
+ 00000129  E8 0000024E	     1			call intOutputProc
+ 0000012E  58		     1			pop eax
+						
+
+ 0000012F  58			    pop eax
+ 00000130  5B			    pop ebx
+				    ret
+
+
+ 00000135			PRINT_LIST ENDP
+
+ 00000135			INSERT_NODE PROC,
+				    headNode: Node, insert:PTR Node, int_value: DWORD
+
+ 00000138  50			    push eax
+ 00000139  53				push ebx
+ 0000013A  52				push edx
+ 0000013B  56				push esi
+					
+ 0000013C  8B 45 14			mov eax, int_value
+ 0000013F  89 45 08			mov headNode.nodeValue, eax
+ 00000142  8B 5D 10			mov ebx, insert
+ 00000145  89 5D 0C			mov headNode.ptrNext, ebx
+
+ 00000148  5E				pop esi
+ 00000149  5A				pop edx
+ 0000014A  5B				pop ebx
+ 0000014B  58			    pop eax
+				    ret
+ 00000150			INSERT_NODE ENDP
+
+
+				; *************** setup for Win32 I / O ****************
+
+ =-0000000B			STD_OUTPUT EQU - 11
+ =-0000000A			STD_INPUT  EQU - 10
+
+				GetStdHandle PROTO NEAR32 stdcall, nStdHandle:DWORD
+
+				ReadFile PROTO NEAR32 stdcall, hFile : DWORD, lpBuffer : NEAR32, nNumberOfCharsToRead : DWORD,
+				lpNumberOfBytesRead : NEAR32, lpOverlapped : NEAR32
+
+									  WriteFile PROTO NEAR32 stdcall, hFile : DWORD, lpBuffer : NEAR32, nNumberOfCharsToWrite : DWORD,
+								  lpNumberOfBytesWritten : NEAR32, lpOverlapped : NEAR32
+
+														   ;;//DATA SEGMENT
+ 000000E3			.DATA
+ 000000E3 00000000		written    DWORD ?
+ 000000E7 00000000		read       DWORD ?
+ 000000EB 00000000		strAddr    DWORD ?
+ 000000EF 00000000		strLength  DWORD ?
+ 000000F3 00000000		hStdOut    DWORD ?
+ 000000F7 00000000		hStdIn     DWORD ?
+ 000000FB  0000000C [		RegValue    BYTE	12 DUP(0)
+	    00
+	   ]
+ 00000107 45 41 58 3A 20	EAX_str		BYTE	"EAX: ", 0
+	   00
+ 0000010D 45 42 58 3A 20	EBX_str		BYTE	"EBX: ", 0
+	   00
+ 00000113 45 43 58 3A 20	ECX_str		BYTE	"ECX: ", 0
+	   00
+ 00000119 45 44 58 3A 20	EDX_str		BYTE	"EDX: ", 0
+	   00
+ 0000011F 0D 0A 00		newline     BYTE    0dh, 0ah, 0
+ 00000122  00000010 [		inputValue	BYTE   16 DUP(0)
+	    00
+	   ]
+
+ 00000150			.CODE
+
+				; itoaproc(source, dest)
+				; convert integer(source) to string of 6 characters at given destination address
+ 00000150			itoaproc    PROC   NEAR32
+ 00000150  55			push   ebp; save base pointer
+ 00000151  8B EC		mov    ebp, esp; establish stack frame
+ 00000153  50			push   eax; Save registers
+ 00000154  53			push   ebx;   used by
+ 00000155  51			push   ecx;   procedure
+ 00000156  52			push   edx
+ 00000157  57			push   edi
+ 00000158  66| 9C		pushf; save flags
+
+ 0000015A  66| 8B 45 0C		mov    ax, [ebp + 12]; first parameter(source integer)
+ 0000015E  8B 7D 08		mov    edi, [ebp + 8]; second parameter(dest offset)
+ 00000161  66| 3D 8000		ifSpecial:  cmp    ax, 8000h; special case -32, 768 ?
+ 00000165  75 19					jne    EndIfSpecial; if not, then normal case
+ 00000167  C6 07 2D					mov    BYTE PTR[edi], '-'; manually put in ASCII codes
+ 0000016A  C6 47 01 33					mov    BYTE PTR[edi + 1], '3';   for - 32, 768
+ 0000016E  C6 47 02 32					mov    BYTE PTR[edi + 2], '2'
+ 00000172  C6 47 03 37					mov    BYTE PTR[edi + 3], '7'
+ 00000176  C6 47 04 36					mov    BYTE PTR[edi + 4], '6'
+ 0000017A  C6 47 05 38					mov    BYTE PTR[edi + 5], '8'
+ 0000017E  EB 36					jmp    ExitIToA; done with special case
+ 00000180					EndIfSpecial:
+ 00000180  66| 8B D0		mov    dx, ax; save source number
+ 00000183  B0 20		mov    al, ' '; put blanks in
+ 00000185  B9 00000005		mov    ecx, 5;   first five
+ 0000018A  FC			cld;   bytes of
+ 0000018B  F3/ AA		rep stosb;   destination field
+
+ 0000018D  66| 8B C2		mov    ax, dx; copy source number
+ 00000190  B1 20		mov    cl, ' '; default sign(blank for + )
+ 00000192  66| 83 F8 00		IfNeg:      cmp    ax, 0; check sign of number
+ 00000196  7D 05					jge    EndIfNeg; skip if not negative
+ 00000198  B1 2D					mov    cl, '-'; sign for negative number
+ 0000019A  66| F7 D8					neg    ax; number in AX now >= 0
+ 0000019D					EndIfNeg:
+ 0000019D  66| BB 000A		mov    bx, 10; divisor
+
+ 000001A1  66| BA 0000		WhileMore : mov    dx, 0; extend number to doubleword
+ 000001A5  66| F7 F3					div    bx; divide by 10
+ 000001A8  80 C2 30					add    dl, 30h; convert remainder to character
+ 000001AB  88 17					mov[edi], dl; put character in string
+ 000001AD  4F						dec    edi; move forward to next position
+ 000001AE  66| 83 F8 00					cmp    ax, 0; check quotient
+ 000001B2  75 ED					jnz    WhileMore; continue if quotient not zero
+
+ 000001B4  88 0F					mov[edi], cl; insert blank or "-" for sign
+
+ 000001B6  66| 9D				ExitIToA : popf; restore flags and registers
+ 000001B8  5F							   pop    edi
+ 000001B9  5A							   pop    edx
+ 000001BA  59							   pop    ecx
+ 000001BB  5B							   pop    ebx
+ 000001BC  58							   pop    eax
+ 000001BD  5D							   pop    ebp
+ 000001BE  C2 0006						   ret    6; exit, discarding parameters
+ 000001C1			itoaproc    ENDP
+
+				; dtoaproc(source, dest)
+				; convert double(source) to string of 11 characters at given offset in DS(dest)
+ 000001C1			dtoaproc    PROC   NEAR32
+ 000001C1  55			push   ebp; save base pointer
+ 000001C2  8B EC		mov    ebp, esp; establish stack frame
+ 000001C4  50			push   eax; Save registers
+ 000001C5  53			push   ebx;   used by
+ 000001C6  51			push   ecx;   procedure
+ 000001C7  52			push   edx
+ 000001C8  57			push   edi
+ 000001C9  66| 9C		pushf; save flags
+
+ 000001CB  8B 45 0C		mov    eax, [ebp + 12]; first parameter(source double)
+ 000001CE  8B 7D 08		mov    edi, [ebp + 8]; second parameter(dest addr)
+ 000001D1  3D 80000000		ifSpecialD: cmp    eax, 80000000h; special case -2, 147, 483, 648 ?
+ 000001D6  75 2D					jne    EndIfSpecialD; if not, then normal case
+ 000001D8  C6 07 2D					mov    BYTE PTR[edi], '-'; manually put in ASCII codes
+ 000001DB  C6 47 01 32					mov    BYTE PTR[edi + 1], '2';   for - 2, 147, 483, 648
+ 000001DF  C6 47 02 31					mov    BYTE PTR[edi + 2], '1'
+ 000001E3  C6 47 03 34					mov    BYTE PTR[edi + 3], '4'
+ 000001E7  C6 47 04 37					mov    BYTE PTR[edi + 4], '7'
+ 000001EB  C6 47 05 34					mov    BYTE PTR[edi + 5], '4'
+ 000001EF  C6 47 06 38					mov    BYTE PTR[edi + 6], '8'
+ 000001F3  C6 47 07 33					mov    BYTE PTR[edi + 7], '3'
+ 000001F7  C6 47 08 36					mov    BYTE PTR[edi + 8], '6'
+ 000001FB  C6 47 09 34					mov    BYTE PTR[edi + 9], '4'
+ 000001FF  C6 47 0A 38					mov    BYTE PTR[edi + 10], '8'
+ 00000203  EB 32					jmp    ExitDToA; done with special case
+ 00000205					EndIfSpecialD:
+
+ 00000205  8B D0		mov    edx, eax; save source number
+
+ 00000207  B0 20		mov    al, ' '; put blanks in
+ 00000209  B9 0000000A		mov    ecx, 10;   first ten
+ 0000020E  FC			cld;   bytes of
+ 0000020F  F3/ AA		rep stosb;   destination field
+
+ 00000211  8B C2		mov    eax, edx; copy source number
+ 00000213  B1 20		mov    cl, ' '; default sign(blank for + )
+ 00000215  83 F8 00		IfNegD:     cmp    eax, 0; check sign of number
+ 00000218  7D 04					jge    EndIfNegD; skip if not negative
+ 0000021A  B1 2D					mov    cl, '-'; sign for negative number
+ 0000021C  F7 D8					neg    eax; number in EAX now >= 0
+ 0000021E					EndIfNegD:
+
+ 0000021E  BB 0000000A		mov    ebx, 10; divisor
+
+ 00000223  BA 00000000		WhileMoreD : mov    edx, 0; extend number to doubleword
+ 00000228  F7 F3					 div    ebx; divide by 10
+ 0000022A  80 C2 30					 add    dl, 30h; convert remainder to character
+ 0000022D  88 17					 mov[edi], dl; put character in string
+ 0000022F  4F						 dec    edi; move forward to next position
+ 00000230  83 F8 00					 cmp    eax, 0; check quotient
+ 00000233  75 EE					 jnz    WhileMoreD; continue if quotient not zero
+
+ 00000235  88 0F					 mov[edi], cl; insert blank or "-" for sign
+
+ 00000237  66| 9D				 ExitDToA : popf; restore flags and registers
+ 00000239  5F								pop    edi
+ 0000023A  5A								pop    edx
+ 0000023B  59								pop    ecx
+ 0000023C  5B								pop    ebx
+ 0000023D  58								pop    eax
+ 0000023E  5D								pop    ebp
+ 0000023F  C2 0008							ret    8; exit, discarding parameters
+ 00000242								dtoaproc    ENDP
+
+
+									; atodproc(source)
+									; Procedure to scan data segment starting at source address, interpreting
+									; ASCII characters as an integer value which is returned in EAX.
+									; Leading blanks are skipped.A leading - or + sign is acceptable.
+									; Digit(s) must immediately follow the sign(if any).
+									; Memory scan is terminated by any non - digit, and the address of
+									; the terminating character is in ESI.
+									; The following flags are affected :
+				;   AC is undefined
+				;   PF, SF and ZF reflect sign of number returned in EAX.
+				;   CF reset to 0
+				;   OF set to indicate error.Possible error conditions are :
+				;     -no digits in input
+				;     -value outside range - 2, 147, 483, 648 to 2, 147, 483, 647
+				;   (EAX)will be 0 if OF is set.
+ 00000242			atodproc    PROC   NEAR32
+ 00000242  55					push   ebp; save base pointer
+ 00000243  8B EC				mov    ebp, esp; establish stack frame
+ 00000245  83 EC 04				sub    esp, 4; local space for sign
+ 00000248  53					push   ebx; Save registers		
+ 00000249  51					push   ecx
+ 0000024A  52					push   edx
+ 0000024B  66| 9C				pushf; save flags
+
+ 0000024D  8B 75 08				mov    esi, [ebp + 8]; get parameter(source addr)
+
+ 00000250  80 3E 20				WhileBlankD:cmp    BYTE PTR[esi], ' '; space ?
+ 00000253  75 03					jne    EndWhileBlankD; exit if not
+ 00000255  46						inc    esi; increment character pointer
+ 00000256  EB F8					jmp    WhileBlankD; and try again
+ 00000258					EndWhileBlankD :
+ 00000258  B8 00000001					mov    eax, 1; default sign multiplier
+ 0000025D  80 3E 2B				IfPlusD : cmp    BYTE PTR[esi], '+'; leading + ?
+ 00000260  74 0A				  je     SkipSignD; if so, skip over
+ 00000262  80 3E 2D				IfMinusD : cmp    BYTE PTR[esi], '-'; leading - ?
+ 00000265  75 06						 jne    EndIfSignD; if not, save default +
+ 00000267  B8 FFFFFFFF						 mov    eax, -1; -1 for minus sign
+ 0000026C  46					SkipSignD : inc    esi; move past sign
+ 0000026D					EndIfSignD :
+ 0000026D  89 45 FC					mov[ebp - 4], eax; save sign multiplier
+ 00000270  B8 00000000					mov    eax, 0; number being accumulated
+ 00000275  66| B9 0000					mov    cx, 0; count of digits so far
+
+ 00000279  80 3E 30				WhileDigitD : cmp    BYTE PTR[esi], '0'; compare next character to '0'
+ 0000027C  7C 18					  jl     EndWhileDigitD; not a digit if smaller than '0'
+ 0000027E  80 3E 39					  cmp    BYTE PTR[esi], '9'; compare to '9'
+ 00000281  7F 13					  jg     EndWhileDigitD; not a digit if bigger than '9'
+ 00000283  6B C0 0A					  imul   eax, 10; multiply old number by 10
+ 00000286  70 25					  jo     overflowD; exit if product too large
+ 00000288  8A 1E					  mov    bl, [esi]; ASCII character to BL
+ 0000028A  83 E3 0F					  and    ebx, 0000000Fh; convert to single - digit integer
+ 0000028D  03 C3					  add    eax, ebx; add to sum
+ 0000028F  72 1C					  jc     overflowD; exit if sum too large
+ 00000291  66| 41					  inc    cx; increment digit count
+ 00000293  46						  inc    esi; increment character pointer
+ 00000294  EB E3					  jmp    WhileDigitD; go try next character
+ 00000296					  EndWhileDigitD :		
+
+ 00000296  66| 83 F9 00					cmp    cx, 0; no digits ?
+ 0000029A  74 11					jz     overflowD; if so, set overflow error flag
+
+							; if value is 80000000h and sign is '-', want to return 80000000h (-2 ^ 32)
+
+ 0000029C  3D 80000000					cmp    eax, 80000000h; 80000000h ?
+ 000002A1  75 06					jne    TooBigD
+ 000002A3  83 7D FC FF					cmp    DWORD PTR[ebp - 4], -1; multiplier - 1 ?
+ 000002A7  74 1A					je     ok1D; if so, return 8000h
+
+ 000002A9  85 C0					TooBigD: test   eax, eax; check sign flag
+ 000002AB  79 13					jns    okD; will be set if number > 2 ^ 32 - 1
+
+ 000002AD  66| 58			 overflowD:  pop    ax; get flags
+ 000002AF  66| 0D 0844						 or     ax, 0000100001000100B; set overflow, zero & parity flags
+ 000002B3  66| 25 FF7E						 and    ax, 1111111101111110B; reset sign and carry flags
+ 000002B7  66| 50						 push   ax; push new flag values
+ 000002B9  B8 00000000						 mov    eax, 0; return value of zero
+ 000002BE  EB 09						 jmp    AToDExit; quit
+
+ 000002C0  F7 6D FC			 okD : imul   DWORD PTR[ebp - 4]; make signed number
+ 000002C3  66| 9D			ok1D : popf; get original flags
+ 000002C5  85 C0							  test   eax, eax; set flags for new number
+ 000002C7  66| 9C							  pushf; save flags
+
+ 000002C9  66| 9D			AToDExit : popf; get flags
+ 000002CB  5A						 pop    edx; restore registers
+ 000002CC  59						 pop    ecx
+ 000002CD  5B						 pop    ebx
+ 000002CE  8B E5					 mov    esp, ebp; delete local variable space
+ 000002D0  5D						 pop    ebp
+ 000002D1  C2 0004					 ret    4; exit, removing parameter
+ 000002D4			 atodproc    ENDP
+
+				 ; outproc(source)
+				 ; Procedure to display null - terminated string
+				 ; No registers are changed; flags are not affected.
+
+ 000002D4			 outproc     PROC   NEAR32
+ 000002D4  55						push   ebp; save base pointer
+ 000002D5  8B EC					mov    ebp, esp; establish stack frame
+ 000002D7  60						pushad
+ 000002D8  9C						pushfd; save flags
+
+ 000002D9  8B 75 08					mov    esi, [ebp + 8]; source address
+ 000002DC  89 35 000000EB R				mov    strAddr, esi
+							; find string length
+ 000002E2  C7 05 000000EF R				mov    strLength, 0; initialize string length
+	   00000000
+ 000002EC  80 3E 00				 WhileChar : cmp    BYTE PTR[esi], 0; character = null ?
+ 000002EF  74 09							 jz     EndWhileChar; exit if so
+ 000002F1  FF 05 000000EF R						 inc    strLength; increment character count
+ 000002F7  46								 inc    esi; point at next character
+ 000002F8  EB F2							 jmp    WhileChar
+ 000002FA					 EndWhileChar :
+							INVOKE GetStdHandle, ; get handle for console output
+									STD_OUTPUT
+ 00000301  A3 000000F3 R				mov    hStdOut, eax
+
+							INVOKE WriteFile,
+								hStdOut, ; file handle for screen
+								strAddr, ; address of string
+								strLength, ; length of string
+								NEAR32 PTR written, ; bytes written
+								0; overlapped mode
+
+ 00000324  9D						popfd; restore flags
+ 00000325  61						popad; restore registers
+ 00000326  5D						pop    ebp
+ 00000327  C2 0004					ret    4; exit, discarding parameter
+ 0000032A			outproc     ENDP
+
+				; inproc(dest, length)
+				; Procedure to input a string from keyboard.
+				; The string will be stored at the address given by dest.
+				; The length parameter gives the size of the user's buffer.  It is assumed 
+				; that there will be room for the string and a null byte.
+				; The string will be terminated by a null character(00h).
+				; Flags are unchanged.
+ 0000032A			inproc      PROC   NEAR32
+ 0000032A  55						push   ebp; save base pointer
+ 0000032B  8B EC					mov    ebp, esp; establish stack fr			ame
+ 0000032D  60						pushad; save all registers
+ 0000032E  9C						pushfd; save flags
+
+							INVOKE GetStdHandle, ; get handle for console
+							STD_INPUT
+ 00000336  A3 000000F7 R				mov    hStdIn, eax
+
+ 0000033B  8B 4D 08					mov    ecx, [ebp + 8]; string length
+ 0000033E  89 0D 000000EF R				mov    strLength, ecx
+
+ 00000344  8B 75 0C					mov    esi, [ebp + 12]; source address
+ 00000347  89 35 000000EB R				mov    strAddr, esi
+
+							INVOKE ReadFile,
+							hStdIn, ; file handle for keyboard
+							strAddr, ; address of string
+							strLength, ; length of string
+							NEAR32 PTR read, ; bytes read
+							0; overlapped mode
+
+ 0000036B  8B 0D 000000E7 R				mov    ecx, read; number of bytes read
+ 00000371  C6 44 31 FE 00				mov    BYTE PTR[esi + ecx - 2], 0; replace CR / LF by trailing null
+
+ 00000376  9D						popfd; restore flags
+ 00000377  61						popad; restore registers
+ 00000378  5D						pop    ebp
+ 00000379  C2 0008					ret    8; exit, discarding parameters
+ 0000037C			inproc      ENDP
+
+
+ 0000037C			intOutputProc      PROC   NEAR32
+ 0000037C  53			push   ebx;; save EBX
+ 0000037D  8B D8		mov    ebx, EAX
+ 0000037F  53			push   ebx;; source parameter
+ 00000380  8D 1D 000000FB R	lea    ebx, RegValue;; destination address
+ 00000386  53			push   ebx;; destination parameter
+ 00000387  E8 FFFFFE35		call   dtoaproc;; call dtoaproc(source, dest)
+ 0000038C  5B			pop    ebx;; restore EBX
+
+ 0000038D  50			push   eax;; save EAX
+ 0000038E  8D 05 000000FB R	lea    eax, RegValue;; string address
+ 00000394  50			push   eax;; string parameter on stack
+ 00000395  E8 FFFFFF3A		call   outproc;; call outproc(string)
+ 0000039A  58			pop    eax;; restore EAX
+
+ 0000039B  50			push   eax;; save EAX
+ 0000039C  8D 05 0000011F R	lea    eax, newline;; string address
+ 000003A2  50			push   eax;; string parameter on stack
+ 000003A3  E8 FFFFFF2C		call   outproc;; call outproc(string)
+ 000003A8  58			pop    eax;; restore EAX
+ 000003A9  C3			ret
+ 000003AA			intOutputProc      ENDP
+
+				; printRegisters
+				; Procedure to print registers to the screen.
+				; Prints EAX, EBX, ECX, and EDX
+ 000003AA			printRegisters    PROC   NEAR32
+ 000003AA  55			push   ebp		; save base pointer
+ 000003AB  8B EC		mov    ebp, esp ; establish stack frame
+ 000003AD  60			pushad			; save all registers
+ 000003AE  9C			pushfd			; save flags
+
+ 000003AF  50			push   eax;; save EAX
+ 000003B0  8D 05 00000107 R	lea    eax, EAX_str;; string address
+ 000003B6  50			push   eax;; string parameter on stack
+ 000003B7  E8 FFFFFF18		call   outproc;; call outproc(string)
+ 000003BC  58			pop    eax;; restore EAX
+
+				; dtoa RegValue, EAX
+ 000003BD  53			push   ebx;; save EBX
+ 000003BE  8B D8		mov    ebx, EAX
+ 000003C0  53			push   ebx;; source parameter
+ 000003C1  8D 1D 000000FB R	lea    ebx, RegValue;; destination address
+ 000003C7  53			push   ebx;; destination parameter
+ 000003C8  E8 FFFFFDF4		call   dtoaproc;; call dtoaproc(source, dest)
+ 000003CD  5B			pop    ebx;; restore EBX
+
+
+ 000003CE  50			push   eax;; save EAX
+ 000003CF  8D 05 000000FB R	lea    eax, RegValue;; string address
+ 000003D5  50			push   eax;; string parameter on stack
+ 000003D6  E8 FFFFFEF9		call   outproc;; call outproc(string)
+ 000003DB  58			pop    eax;; restore EAX
+
+ 000003DC  50			push   eax;; save EAX
+ 000003DD  8D 05 0000011F R	lea    eax, newline;; string address
+ 000003E3  50			push   eax;; string parameter on stack
+ 000003E4  E8 FFFFFEEB		call   outproc;; call outproc(string)
+ 000003E9  58			pop    eax;; restore EAX
+
+
+ 000003EA  50			push   eax;; save EAX
+ 000003EB  8D 05 0000010D R	lea    eax, EBX_str;; string address
+ 000003F1  50			push   eax;; string parameter on stack
+ 000003F2  E8 FFFFFEDD		call   outproc;; call outproc(string)
+ 000003F7  58			pop    eax;; restore EAX
+
+				;			dtoa RegValue, EBX
+ 000003F8  53			push   ebx;; save EBX
+ 000003F9  8B DB		mov    ebx, EBX
+ 000003FB  53			push   ebx;; source parameter
+ 000003FC  8D 1D 000000FB R	lea    ebx, RegValue;; destination address
+ 00000402  53			push   ebx;; destination parameter
+ 00000403  E8 FFFFFDB9		call   dtoaproc;; call dtoaproc(source, dest)
+ 00000408  5B			pop    ebx;; restore EBX
+
+ 00000409  50			push   eax;; save EAX
+ 0000040A  8D 05 000000FB R	lea    eax, RegValue;; string address
+ 00000410  50			push   eax;; string parameter on stack
+ 00000411  E8 FFFFFEBE		call   outproc;; call outproc(string)
+ 00000416  58			pop    eax;; restore EAX
+
+ 00000417  50			push   eax;; save EAX
+ 00000418  8D 05 0000011F R	lea    eax, newline;; string address
+ 0000041E  50			push   eax;; string parameter on stack
+ 0000041F  E8 FFFFFEB0		call   outproc;; call outproc(string)
+ 00000424  58			pop    eax;; restore EAX
+
+ 00000425  50			push   eax;; save EAX
+ 00000426  8D 05 00000113 R	lea    eax, ECX_str;; string address
+ 0000042C  50			push   eax;; string parameter on stack
+ 0000042D  E8 FFFFFEA2		call   outproc;; call outproc(string)
+ 00000432  58			pop    eax;; restore EAX
+
+				; dtoa RegValue, ECX
+ 00000433  53			push   ebx;; save EBX
+ 00000434  8B D9		mov    ebx, ECX
+ 00000436  53			push   ebx;; source parameter
+ 00000437  8D 1D 000000FB R	lea    ebx, RegValue;; destination address
+ 0000043D  53			push   ebx;; destination parameter
+ 0000043E  E8 FFFFFD7E		call   dtoaproc;; call dtoaproc(source, dest)
+ 00000443  5B			pop    ebx;; restore EBX
+
+ 00000444  50			push   eax;; save EAX
+ 00000445  8D 05 000000FB R	lea    eax, RegValue;; string address
+ 0000044B  50			push   eax;; string parameter on stack
+ 0000044C  E8 FFFFFE83		call   outproc;; call outproc(string)
+ 00000451  58			pop    eax;; restore EAX
+
+ 00000452  50			push   eax;; save EAX
+ 00000453  8D 05 0000011F R	lea    eax, newline;; string address
+ 00000459  50			push   eax;; string parameter on stack
+ 0000045A  E8 FFFFFE75		call   outproc;; call outproc(string)
+ 0000045F  58			pop    eax;; restore EAX
+
+ 00000460  50			push   eax;; save EAX
+ 00000461  8D 05 00000119 R	lea    eax, EDX_str;; string address
+ 00000467  50			push   eax;; string parameter on stack
+ 00000468  E8 FFFFFE67		call   outproc;; call outproc(string)
+ 0000046D  58			pop    eax;; restore EAX
+
+ 0000046E  53			push   ebx;; save EBX
+ 0000046F  8B DA		mov    ebx, EDX
+ 00000471  53			push   ebx;; source parameter
+ 00000472  8D 1D 000000FB R	lea    ebx, RegValue;; destination address
+ 00000478  53			push   ebx;; destination parameter
+ 00000479  E8 FFFFFD43		call   dtoaproc;; call dtoaproc(source, dest)
+ 0000047E  5B			pop    ebx;; restore EBX
+
+ 0000047F  50			push   eax;; save EAX
+ 00000480  8D 05 000000FB R	lea    eax, RegValue;; string address
+ 00000486  50			push   eax;; string parameter on stack
+ 00000487  E8 FFFFFE48		call   outproc;; call outproc(string)
+ 0000048C  58			pop    eax;; restore EAX
+
+ 0000048D  50			push   eax;; save EAX
+ 0000048E  8D 05 0000011F R	lea    eax, newline;; string address
+ 00000494  50			push   eax;; string parameter on stack
+ 00000495  E8 FFFFFE3A		call   outproc;; call outproc(string)
+ 0000049A  58			pop    eax;; restore EAX
+
+ 0000049B  9D			popfd; restore flags
+ 0000049C  61			popad; restore registers
+ 0000049D  5D			pop    ebp
+ 0000049E  C3			ret    ; exit
+ 0000049F			printRegisters    ENDP
+
+ 0000049F			intInputProc	PROC	NEAR32
+ 0000049F  55			push   ebp; save base pointer
+ 000004A0  8B EC		mov    ebp, esp; establish stack frame
+
+				; input  inputValue, 16;//Converts ascii input
+
+ 000004A2  53			push   ebx;; save EBX
+
+ 000004A3  8D 1D 00000122 R	lea    ebx, inputValue;; destination address
+ 000004A9  53			push   ebx;; dest parameter on stack
+ 000004AA  BB 00000010		mov    ebx, 16;; length of buffer
+ 000004AF  53			push   ebx;; length parameter on stack
+ 000004B0  E8 FFFFFE75		call   inproc;; call inproc(dest, length)
+
+ 000004B5  5B			pop    ebx;; restore EBX
+
+
+				; atod   inputValue
+ 000004B6  8D 05 00000122 R	lea    eax, inputValue;; source address to EAX
+ 000004BC  50			push   eax;; source parameter on stack
+ 000004BD  E8 FFFFFD80		call   atodproc;; call atodproc(source)
+
+ 000004C2  5D			pop   ebp; restore base pointer
+
+ 000004C3  C3			ret; exit, discarding parameters
+ 000004C4			intInputProc	ENDP
+
+
+				END main
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    12/01/15 14:50:17
+Lab9.asm						     Symbols 2 - 1
+
+
+
+
+Macros:
+
+                N a m e                 Type
+
+atod . . . . . . . . . . . . . .	Proc
+dtoa . . . . . . . . . . . . . .	Proc
+input  . . . . . . . . . . . . .	Proc
+intInput . . . . . . . . . . . .	Proc
+intOutput  . . . . . . . . . . .	Proc
+output . . . . . . . . . . . . .	Proc
+stringInput  . . . . . . . . . .	Proc
+
+
+Structures and Unions:
+
+                N a m e                  Size
+                                         Offset      Type
+
+Node . . . . . . . . . . . . . .	 00000008
+  nodeValue  . . . . . . . . . .	 00000000	 DWord
+  ptrNext  . . . . . . . . . . .	 00000004	 DWord
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000132 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000004C4 DWord	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+DISPLAY_MENU . . . . . . . . . .	P Near	 00000084 _TEXT	Length= 0000007D Public STDCALL
+  prompt . . . . . . . . . . . .	L Near	 000000BD _TEXT	
+  nextCheck  . . . . . . . . . .	L Near	 000000E3 _TEXT	
+  reprompt . . . . . . . . . . .	L Near	 000000EA _TEXT	
+  return . . . . . . . . . . . .	L Near	 000000FA _TEXT	
+ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+INSERT_NODE  . . . . . . . . . .	P Near	 00000135 _TEXT	Length= 0000001B Public STDCALL
+  headNode . . . . . . . . . . .	QWord	 bp + 00000008
+  insert . . . . . . . . . . . .	DWord	 bp + 00000010
+  int_value  . . . . . . . . . .	DWord	 bp + 00000014
+PRINT_LIST . . . . . . . . . . .	P Near	 00000101 _TEXT	Length= 00000034 Public STDCALL
+  headNode . . . . . . . . . . .	QWord	 bp + 00000008
+  working  . . . . . . . . . . .	L Near	 00000106 _TEXT	
+  printFail  . . . . . . . . . .	L Near	 00000112 _TEXT	
+  print  . . . . . . . . . . . .	L Near	 00000126 _TEXT	
+ReadFile . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+atodproc . . . . . . . . . . . .	P Near	 00000242 _TEXT	Length= 00000092 Public STDCALL
+  WhileBlankD  . . . . . . . . .	L Near	 00000250 _TEXT	
+  EndWhileBlankD . . . . . . . .	L Near	 00000258 _TEXT	
+  IfPlusD  . . . . . . . . . . .	L Near	 0000025D _TEXT	
+  IfMinusD . . . . . . . . . . .	L Near	 00000262 _TEXT	
+  SkipSignD  . . . . . . . . . .	L Near	 0000026C _TEXT	
+  EndIfSignD . . . . . . . . . .	L Near	 0000026D _TEXT	
+  WhileDigitD  . . . . . . . . .	L Near	 00000279 _TEXT	
+  EndWhileDigitD . . . . . . . .	L Near	 00000296 _TEXT	
+  TooBigD  . . . . . . . . . . .	L Near	 000002A9 _TEXT	
+  overflowD  . . . . . . . . . .	L Near	 000002AD _TEXT	
+  okD  . . . . . . . . . . . . .	L Near	 000002C0 _TEXT	
+  ok1D . . . . . . . . . . . . .	L Near	 000002C3 _TEXT	
+  AToDExit . . . . . . . . . . .	L Near	 000002C9 _TEXT	
+dtoaproc . . . . . . . . . . . .	P Near	 000001C1 _TEXT	Length= 00000081 Public STDCALL
+  ifSpecialD . . . . . . . . . .	L Near	 000001D1 _TEXT	
+  EndIfSpecialD  . . . . . . . .	L Near	 00000205 _TEXT	
+  IfNegD . . . . . . . . . . . .	L Near	 00000215 _TEXT	
+  EndIfNegD  . . . . . . . . . .	L Near	 0000021E _TEXT	
+  WhileMoreD . . . . . . . . . .	L Near	 00000223 _TEXT	
+  ExitDToA . . . . . . . . . . .	L Near	 00000237 _TEXT	
+inproc . . . . . . . . . . . . .	P Near	 0000032A _TEXT	Length= 00000052 Public STDCALL
+intInputProc . . . . . . . . . .	P Near	 0000049F _TEXT	Length= 00000025 Public STDCALL
+intOutputProc  . . . . . . . . .	P Near	 0000037C _TEXT	Length= 0000002E Public STDCALL
+itoaproc . . . . . . . . . . . .	P Near	 00000150 _TEXT	Length= 00000071 Public STDCALL
+  ifSpecial  . . . . . . . . . .	L Near	 00000161 _TEXT	
+  EndIfSpecial . . . . . . . . .	L Near	 00000180 _TEXT	
+  IfNeg  . . . . . . . . . . . .	L Near	 00000192 _TEXT	
+  EndIfNeg . . . . . . . . . . .	L Near	 0000019D _TEXT	
+  WhileMore  . . . . . . . . . .	L Near	 000001A1 _TEXT	
+  ExitIToA . . . . . . . . . . .	L Near	 000001B6 _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000084 Public STDCALL
+  display  . . . . . . . . . . .	L Near	 00000000 _TEXT	
+  insertNode . . . . . . . . . .	L Near	 0000001E _TEXT	
+  deleteNode . . . . . . . . . .	L Near	 00000066 _TEXT	
+  printNode  . . . . . . . . . .	L Near	 00000068 _TEXT	
+  exitProgram  . . . . . . . . .	L Near	 0000007B _TEXT	
+  finish . . . . . . . . . . . .	L Near	 0000007D _TEXT	
+outproc  . . . . . . . . . . . .	P Near	 000002D4 _TEXT	Length= 00000056 Public STDCALL
+  WhileChar  . . . . . . . . . .	L Near	 000002EC _TEXT	
+  EndWhileChar . . . . . . . . .	L Near	 000002FA _TEXT	
+printRegisters . . . . . . . . .	P Near	 000003AA _TEXT	Length= 000000F5 Public STDCALL
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+EAX_str  . . . . . . . . . . . .	Byte	 00000107 _DATA	
+EBX_str  . . . . . . . . . . . .	Byte	 0000010D _DATA	
+ECX_str  . . . . . . . . . . . .	Byte	 00000113 _DATA	
+EDX_str  . . . . . . . . . . . .	Byte	 00000119 _DATA	
+EmptyList  . . . . . . . . . . .	Byte	 00000045 _DATA	
+ErrorMessage . . . . . . . . . .	Byte	 00000017 _DATA	
+LinkedList . . . . . . . . . . .	Node	 000000AB _DATA	
+MenuOutput1  . . . . . . . . . .	Byte	 00000057 _DATA	
+MenuOutput2  . . . . . . . . . .	Byte	 0000006C _DATA	
+MenuOutput3  . . . . . . . . . .	Byte	 0000007F _DATA	
+MenuOutput4  . . . . . . . . . .	Byte	 00000093 _DATA	
+RegValue . . . . . . . . . . . .	Byte	 000000FB _DATA	
+STD_INPUT  . . . . . . . . . . .	Number	 -0000000Ah   
+STD_OUTPUT . . . . . . . . . . .	Number	 -0000000Bh   
+checkNode  . . . . . . . . . . .	Node	 000000DB _DATA	
+displayOutput  . . . . . . . . .	DWord	 000000A7 _DATA	
+hStdIn . . . . . . . . . . . . .	DWord	 000000F7 _DATA	
+hStdOut  . . . . . . . . . . . .	DWord	 000000F3 _DATA	
+head . . . . . . . . . . . . . .	Node	 000000D3 _DATA	
+inputIntMessage  . . . . . . . .	Byte	 00000004 _DATA	
+inputValue . . . . . . . . . . .	Byte	 00000122 _DATA	
+integerInput . . . . . . . . . .	DWord	 00000000 _DATA	
+newline  . . . . . . . . . . . .	Byte	 0000011F _DATA	
+read . . . . . . . . . . . . . .	DWord	 000000E7 _DATA	
+strAddr  . . . . . . . . . . . .	DWord	 000000EB _DATA	
+strLength  . . . . . . . . . . .	DWord	 000000EF _DATA	
+written  . . . . . . . . . . . .	DWord	 000000E3 _DATA	
+
+	   0 Warnings
+	   0 Errors
